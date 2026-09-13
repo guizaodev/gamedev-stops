@@ -30,7 +30,7 @@ export function Jogo({ jogadores, filaInicial, indicePrimeiro, tema, tempoRodada
   const [usadas, setUsadas] = useState<ReadonlySet<string>>(new Set())
   const [turnoTemLetra, setTurnoTemLetra] = useState(false)
   const [restanteMs, setRestanteMs] = useState(tempoRodada * 1000)
-  const [estado, setEstado] = useState<Estado>('aguardando')
+  const [estado, setEstado] = useState<Estado>('contando')
   const [vencedorId, setVencedorId] = useState<number | null>(null)
   const [flash, setFlash] = useState(false)
   const [aviso, setAviso] = useState(false)
@@ -106,7 +106,6 @@ export function Jogo({ jogadores, filaInicial, indicePrimeiro, tema, tempoRodada
       setIdxAtual(idxRef.current % restantes.length)
       setTurno(t => t + 1)
       setTurnoTemLetra(false)
-      setEstado('aguardando')
     }
   }, [])
 
@@ -115,11 +114,6 @@ export function Jogo({ jogadores, filaInicial, indicePrimeiro, tema, tempoRodada
   }, [restanteMs, estado, eliminarAtual])
 
   useTicTac(estado === 'contando', urgente, muted)
-
-  const comecar = () => {
-    tocar('clique')
-    setEstado('contando')
-  }
 
   const marcarLetra = (letra: string) => {
     if (estado !== 'contando' || usadas.has(letra)) return
@@ -142,7 +136,6 @@ export function Jogo({ jogadores, filaInicial, indicePrimeiro, tema, tempoRodada
     setTurnoTemLetra(false)
     setIdxAtual(i => (i + 1) % vivos.length)
     setTurno(t => t + 1)
-    setEstado('aguardando')
   }
 
   const proximaRodada = () => {
@@ -179,6 +172,11 @@ export function Jogo({ jogadores, filaInicial, indicePrimeiro, tema, tempoRodada
           <span className="block truncate text-2xl font-black leading-tight text-white sm:text-3xl">
             {tema}
           </span>
+          {estado !== 'fimRodada' && (
+            <span className="mt-0.5 block text-xs font-bold uppercase tracking-wider text-fuchsia-200 sm:text-sm">
+              Jogador da vez: <span className="text-yellow-300">{jogadorAtual?.nome ?? '—'}</span>
+            </span>
+          )}
         </div>
         <BotaoSom muted={muted} onToggle={onToggleSom} />
         <button
@@ -235,26 +233,7 @@ export function Jogo({ jogadores, filaInicial, indicePrimeiro, tema, tempoRodada
         </section>
       </div>
 
-      {estado === 'aguardando' && (
-        <div className="fixed inset-0 z-40 grid place-items-center bg-indigo-950/95 p-6">
-          <div className="anim-fadeup text-center">
-            <p className="text-xl uppercase tracking-[0.3em] text-white/60">Passa o tablet para</p>
-            <p className="anim-pop texto-contorno my-3 text-6xl font-black text-yellow-300 sm:text-7xl">
-              {jogadorAtual?.nome ?? '—'}
-            </p>
-            <p className="text-2xl text-white/80">
-              Tema: <b className="text-fuchsia-300">{tema}</b>
-            </p>
-            <button
-              type="button"
-              onClick={comecar}
-              className="mt-7 rounded-3xl bg-green-500 px-14 py-6 text-3xl font-black tracking-widest text-white shadow-[0_8px_0] shadow-green-700 transition-all active:translate-y-1.5 active:shadow-none"
-            >
-              COMEÇAR!
-            </button>
-          </div>
-        </div>
-      )}
+      {estado === 'aguardando' && null}
     </div>
   )
 }
